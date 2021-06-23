@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-<%- gpu = context.node_type.include?("vis") -%>
+<%- gpu = context.ngpus.include?("1") -%>
 
 # Clean the environment
 module purge
@@ -11,6 +11,7 @@ cd "${HOME}"
 #
 # Launch Fluxbox
 #
+module load fluxbox/1.3.7-gcc/8.3.1
 
 # Create Fluxbox root or it will override the below init file
 (
@@ -32,7 +33,8 @@ until fluxbox -display "${DISPLAY}.0" -rc "<%= session.staged_root.join("fluxbox
 #
 
 # Load the required environment
-module load xalt/latest intel/18.0.3 <%= context.version %>
+module load <%= context.pbs_modules %>
+module load <%= context.version %>
 
 # Output debug information
 module list
@@ -40,7 +42,7 @@ module list
 # Launch Abaqus
 set -x
 <%- if gpu -%>
-module load virtualgl
+#module load virtualgl
 vglrun abaqus cae \
 <%- else -%>
 abaqus cae -mesa \

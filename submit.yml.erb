@@ -1,28 +1,41 @@
-<%-
-  ppn = bc_num_cores.blank? ? 28 : bc_num_cores.to_i
-  ppn = 48 if node_type == 'hugemem'
-  nodes = bc_num_slots.blank? ? 1 : bc_num_slots.to_i
+#<%-
+#  ppn = bc_num_cores.blank? ? 28 : bc_num_cores.to_i
+#  ppn = 48 if node_type == 'hugemem'
+#  nodes = bc_num_slots.blank? ? 1 : bc_num_slots.to_i
 
-  # no idea where this license calculation comes from.
-  licenses = (5 * (nodes * ppn) ** 0.422).floor
-  base_slurm_args = [ "--nodes", "#{nodes}", "--ntasks-per-node", "#{ppn}", "--licenses", "abaqus@osc:#{licenses}"]
+#  # no idea where this license calculation comes from.
+#  licenses = (5 * (nodes * ppn) ** 0.422).floor
+#  base_slurm_args = [ "--nodes", "#{nodes}", "--ntasks-per-node", "#{ppn}", "--licenses", "abaqus@osc:#{licenses}"]
 
-  case node_type
-  when "hugemem"
-    partition = bc_num_slots.to_i > 1 ? "hugemem-parallel" : "hugemem"
-    slurm_args = base_slurm_args + [ "--partition", partition ]
-  when "vis"
-    slurm_args = base_slurm_args + ["--gpus-per-node", "1", "--gres", "vis" ]
-  else
-    slurm_args = base_slurm_args
-  end
--%>
+#  case node_type
+#  when "hugemem"
+#    partition = bc_num_slots.to_i > 1 ? "hugemem-parallel" : "hugemem"
+#    slurm_args = base_slurm_args + [ "--partition", partition ]
+#  when "vis"
+#    slurm_args = base_slurm_args + ["--gpus-per-node", "1", "--gres", "vis" ]
+#  else
+#    slurm_args = base_slurm_args
+#  end
+#-%>
 ---
 batch_connect:
   template: "vnc"
+
 script:
-  accounting_id: "<%= account %>"
   native:
-  <%- slurm_args.each do |arg| %>
-    - "<%= arg %>"
-  <%- end %>
+    - "-N"
+    - "abaqus"
+    - "-q"
+    - "<%= pbs_queue %>"
+    - "-l"
+    - "select=<%= pbs_select %>:ncpus=<%= pbs_ncpus %>:mpiprocs=<%= pbs_ncpus %>:mem=<%= pbs_mem %>:interconnect=<%= pbs_interconnect %>:ngpus=<%= pbs_ngpus %>:gpu_model=<%= pbs_gpu_model %>,walltime=<%= pbs_walltime %>"
+
+
+
+
+
+  #accounting_id: "<%= account %>"
+  #native:
+  #<%- slurm_args.each do |arg| %>
+  #  - "<%= arg %>"
+  #<%- end %>
