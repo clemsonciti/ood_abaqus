@@ -1,29 +1,16 @@
-<%-
-  groups = OodSupport::User.new.groups.sort_by(&:id).tap { |groups|
-    groups.unshift(groups.delete(OodSupport::Process.group))
-  }.map(&:name).grep(/^P./)
--%>
----
-cluster:
-  - "palmetto"
-  
-form:
-  - pbs_select
-  - pbs_ncpus
-  - pbs_mem
-  - pbs_ngpus
-  - pbs_gpu_model
-  - pbs_interconnect
-  - pbs_walltime
-  - pbs_queue
-  - pbs_modules
-  - version
-  - bc_vnc_resolution
+#<%-
+#  groups = OodSupport::User.new.groups.sort_by(&:id).tap { |groups|
+#    groups.unshift(groups.delete(OodSupport::Process.group))
+#  }.map(&:name).grep(/^P./)
+#-%>
+#---
+
+cluster: "palmetto"
 
 attributes:
   # Palmetto PBS specific options
   pbs_select:
-    label: "Number of resource chunks (select)"ac
+    label: "Number of resource chunks (select)"
     widget: "select"
     value: "1"
     options:
@@ -128,8 +115,23 @@ attributes:
     label: "List of modules to be loaded, separate by an empty space"
     value: ""
 
+  vnc_resolution:
+    label: "Resolution"
+    required: true
+    widget: "select"
+    value: "1280x1024"
+    options:
+      - ["2560x1600","2560x1600"]
+      - ["2560x1440","2560x1440"]
+      - ["1920x1200","1920x1200"]
+      - ["1920x1080","1920x1080"] 
+      - ["1600x1200","1600x1200"]
+      - ["1280x1024","1280x1024"]
+      - ["1280x960","1280x960"]  
+
   bc_vnc_resolution:
     required: true
+    value: "1280x1024"
     
   version:
     widget: select
@@ -140,3 +142,19 @@ attributes:
       - ["2020", "abaqus/2020"]
       - ["2018", "abaqus/2018"]
       - ["6.14", "abaqus/6.14"]
+
+  
+form:
+  - pbs_select
+  - pbs_ncpus
+  - pbs_mem
+  - pbs_ngpus
+  - pbs_gpu_model
+  - pbs_interconnect
+  - pbs_walltime
+  - pbs_queue
+  - pbs_modules
+  - vnc_resolution
+  - bc_vnc_resolution
+  - version
+  

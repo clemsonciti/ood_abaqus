@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-<%- gpu = context.ngpus.include?("1") -%>
+<%- gpu = context.pbs_ngpus.include?("1") -%>
 
 # Clean the environment
 module purge
@@ -18,6 +18,9 @@ module load fluxbox/1.3.7-gcc/8.3.1
   umask 077
   mkdir -p "${HOME}/.fluxbox"
 )
+
+
+xrandr -s <%= context.vnc_resolution %>
 
 # Start the Fluxbox window manager (it likes to crash on occassion, make it
 # persistent)
