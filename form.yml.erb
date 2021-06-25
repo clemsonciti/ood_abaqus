@@ -1,9 +1,21 @@
-#<%-
-#  groups = OodSupport::User.new.groups.sort_by(&:id).tap { |groups|
-#    groups.unshift(groups.delete(OodSupport::Process.group))
-#  }.map(&:name).grep(/^P./)
-#-%>
-#---
+<%-
+  # get _list_partitions
+  p_cmd = "/opt/pbs/default/bin/qstat -Q | grep Rou | grep -v -E 'gpu|c1|c2|osg' | awk '{print $1}' | sort"
+  begin
+    output, status = Open3.capture2e(p_cmd)
+    if status.success?
+      _list_partitions = output.split("\n").map(&:strip).reject(&:blank?).sort
+    else
+      raise output
+    end
+  rescue => e
+    _list_partitions = []
+    p_error = e.message.strip
+  end
+
+-%>
+---
+
 
 cluster: "palmetto"
 
@@ -106,11 +118,29 @@ attributes:
       - ["24 hours","24:00:00"]
       - ["72 hours","72:00:00"]
       
+
   pbs_queue:
     label: "Queue"
     required: true
     value: "work1"
-    
+    help: |
+      <small>Queue to submit the job to</small>
+    <%- if p_error -%>
+      <span class="text-danger">Error when parsing queues:</span>
+      ```
+      <%= p_error.gsub("\n", "\n      ") %>
+      ```
+    <%- end -%>
+    <%- if _list_partitions.blank? -%>
+    widget: text_field
+    <%- else -%>
+    widget: select
+    options:
+      <%- _list_partitions.each do |q| -%>
+      - [ "<%= q %>", "<%= q %>" ]
+      <%- end -%>
+    <%- end -%>
+
   pbs_modules:
     label: "List of modules to be loaded, separate by an empty space"
     value: ""
